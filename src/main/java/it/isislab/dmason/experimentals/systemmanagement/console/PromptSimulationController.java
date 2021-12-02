@@ -22,6 +22,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Properties;
 import it.isislab.dmason.experimentals.systemmanagement.master.MasterServer;
@@ -47,6 +48,7 @@ public enum PromptSimulationController implements Prompt {
 			c.printf("*    pause                |pause the simulation corresponding to the given id.                         *");
 			c.printf("*    list                 |list the existing simulations                                               *");
 			c.printf("*    logs                 |show the path where find the simulation log corresponding to the given id.  *");
+			c.printf("*    waitall              |wait for all started simulations to finish execution.  *");
 			c.printf("********************************************************************************************************");
 			return null;
 		}
@@ -273,6 +275,34 @@ public enum PromptSimulationController implements Prompt {
 						+"      logs <simID>\n");
 				return null;
 			}
+		}
+	
+  }),WAITALL(new Action(){
+
+    boolean emptyOrNotStarted(MasterServer ms) {
+			Collection<Simulation> values = ms.getSimulationsList().values();
+      if (values.size() == 0) {
+        return true;
+      } 
+      for (Simulation sim : values) {
+        System.out.println(sim.getStatus());
+        if (sim.getStatus().equals(Simulation.STARTED)) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+		@Override
+		public Object exec(Console c, String[] params, String stringPrompt, MasterServer ms) throws Exception {
+      do {
+         try {
+            Thread.sleep(10000);
+         } catch (Exception e) {
+           e.printStackTrace();
+         }
+      } while(!emptyOrNotStarted(ms));
+      return null;
 		}
 
 	});
