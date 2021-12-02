@@ -57,7 +57,7 @@ public class Console {
 	{
 		if(console!=null)
 		{
-			console.printf(format, str);
+			console.printf(format, str + "\n");
 		}else
 			System.out.println(String.format(format, str));
 	}
@@ -73,7 +73,7 @@ public class Console {
 	{
 		if(console!=null)
 		{
-			console.printf( str);
+			console.printf( str + "\n");
 		}else
 			System.out.println(str);
 	}

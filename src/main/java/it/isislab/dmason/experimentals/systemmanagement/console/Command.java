@@ -70,6 +70,7 @@ public enum Command implements Prompt{
 //			c.printf("*    pause                |stop the simulation corresponding to the given id.                     *");
 			c.printf("*    simulationcontroller |(start/stop/pause) a simulation                                        *");
 			c.printf("*    createsimulation     |create new simulation execution.                                       *");
+			c.printf("*    waitforworkers #workers     |Wait until #workers connected.                                       *");
 //			c.printf("*    getsimulations       |print all simulations created by the user.                             *");
 //			c.printf("*    getsimulation        |print status of the simulation corresponding to the given id.          *");
 //			c.printf("*    getlog               |download the results of the simulation corresponding to the given id.  *");
@@ -149,6 +150,30 @@ public enum Command implements Prompt{
 			return null;
 		}
 	}),
+  WAITFORWORKERS(new Action() {
+		@Override
+		public Object exec(Console c, String[] params,String stringPrompt,MasterServer ms)
+		{
+			if(params == null || params.length != 1 ) {
+				c.printf("Wrong number of arguments!");
+				c.printf("USAGE: ");
+				c.printf("waitforworkers <number-of-workers>");
+        return null;
+			}
+      
+      int target = Integer.parseInt(params[0]);
+      while(ms.getInfoWorkers().size() != target) {
+        c.printf("current number of connected workers: " + ms.getInfoWorkers().size());
+         try {
+            Thread.sleep(1000);
+         } catch (Exception e) {
+           e.printStackTrace();
+         }
+      }
+
+			return null;
+		}
+  }),
 	CREATESIMULATION(new Action(){
 
 		@Override
