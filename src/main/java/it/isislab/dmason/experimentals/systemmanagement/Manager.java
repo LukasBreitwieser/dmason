@@ -323,6 +323,7 @@ public class Manager {
 			if (console != null)
 				try {
 					execCommandLoop(console,ms);
+          System.exit(0);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -349,6 +350,10 @@ public class Manager {
 		while (true)
 		{
 			String commandLine = console.readLine(PROMPT, new Date());
+      // reached end of input
+      if (commandLine == null) {
+        break;
+      }
 			Scanner scanner = new Scanner(commandLine);
 
 			if (scanner.hasNext())
