@@ -17,6 +17,7 @@
 package it.isislab.dmason.experimentals.systemmanagement.console;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Scanner;
 
@@ -71,6 +72,7 @@ public enum Command implements Prompt{
 			c.printf("*    simulationcontroller |(start/stop/pause) a simulation                                        *");
 			c.printf("*    createsimulation     |create new simulation execution.                                       *");
 			c.printf("*    waitforworkers #workers     |Wait until #workers connected.                                       *");
+			c.printf("*    shutdownallworkers   |Shutdown all connected workers.                                       *");
 //			c.printf("*    getsimulations       |print all simulations created by the user.                             *");
 //			c.printf("*    getsimulation        |print status of the simulation corresponding to the given id.          *");
 //			c.printf("*    getlog               |download the results of the simulation corresponding to the given id.  *");
@@ -173,6 +175,49 @@ public enum Command implements Prompt{
 
 			return null;
 		}
+  }),
+  SHUTDOWNALLWORKERS(new Action() {
+		@Override
+		public Object exec(Console c, String[] params,String stringPrompt,MasterServer ms) {
+      if (params != null && params.length > 0) {
+        c.printf("This command does not expect any arguments");
+        return null;
+      }
+			String message = "{\"workers\":[";
+
+			int startMessageSize = message.length();
+
+			for(String s : ms.getInfoWorkers().values())
+				message+=s+",";
+
+			if(message.length() > startMessageSize)
+				message=message.substring(0, message.length()-1)+"]}";
+			else
+				message="";
+			
+			if(message.length()==0)
+				return null;
+
+			try{
+				JSONParser parser = new JSONParser();
+				JSONObject j_workers = (JSONObject)parser.parse(message);
+				JSONArray worker = (JSONArray)j_workers.get("workers");
+				if(worker !=null){
+          ArrayList<String> workerIds = new ArrayList<>();
+					for(int i=0; i<worker.size(); i++){
+						JSONObject o = (JSONObject)worker.get(i);
+            workerIds.add((String) o.get("workerID"));
+					}
+          ms.shutdownAllWorkers(workerIds);
+				}else{
+					c.printf("No workers available");
+				}
+			}catch(ParseException e){
+				c.printf("Some errors were occurred \n");
+				e.printStackTrace();
+			}
+      return null;
+    }
   }),
 	CREATESIMULATION(new Action(){
 
